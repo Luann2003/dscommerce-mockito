@@ -1,5 +1,6 @@
 package com.devsuperior.dscommerce.controllers.IT;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -19,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.devsuperior.dscommerce.dto.ProductDTO;
 import com.devsuperior.dscommerce.entities.Category;
 import com.devsuperior.dscommerce.entities.Product;
-import com.devsuperior.dscommerce.tests.ProductFactory;
 import com.devsuperior.dscommerce.tests.TokenUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -65,6 +65,8 @@ public class ProductControllerIT {
 		Category category = new Category(2L, "Eletro");
 		product.getCategories().add(category);
 		productDTO = new ProductDTO(product);
+		
+		
 		
 	}
 
@@ -113,7 +115,6 @@ public class ProductControllerIT {
 		result.andExpect(jsonPath("$.imgUrl").value("https://raw.githubusercontent.com/devsuperior/dscatalog-resources/master/backend/img/1-big.jpg"));
 		result.andExpect(jsonPath("$.categories[0].id").value(2L));
 	}
-	
 	@Test
 	public void insertShouldReturnProduct422WhenAdminLoggedFieldNameIsEmpty() throws Exception {
 		
@@ -133,7 +134,6 @@ public class ProductControllerIT {
 		result.andExpect(jsonPath("$.errors[0].fieldName").value("name"));
 		result.andExpect(jsonPath("$.errors[0].message").value("Nome precisar ter de 3 a 80 caracteres"));
 	}
-	
 	@Test
 	public void insertShouldReturnProduct422WhenAdminLoggedFieldDescriptionIsInvalid() throws Exception {
 		
@@ -187,6 +187,7 @@ public class ProductControllerIT {
 		
 		result.andExpect(status().isUnprocessableEntity());
 	}
+	
 	@Test
 	public void insertShouldReturnProduct422WhenAdminLoggedFieldAndProductHasCategoriesNotExistis() throws Exception {
 		
@@ -204,4 +205,61 @@ public class ProductControllerIT {
 		
 		result.andExpect(status().isUnprocessableEntity());
 	}
+	
+	@Test
+	public void deleteShouldExistingWhenAdminLogged() throws Exception {
+		
+		ResultActions result =
+				mockMvc.perform(delete("/products/{productsId}", 2)
+						.header("Authorization", "Bearer " + adminToken)
+						.contentType(MediaType.APPLICATION_JSON));
+		
+		result.andExpect(status().isNoContent());
+	}
+	
+	@Test
+	public void deleteShouldResourceNotFoundExceptionWhenNotExistingId() throws Exception {
+		
+		ResultActions result =
+				mockMvc.perform(delete("/products/{productsId}", 1000)
+						.header("Authorization", "Bearer " + adminToken)
+						.contentType(MediaType.APPLICATION_JSON));
+		
+		result.andExpect(status().isNotFound());
+	}
+	
+	@Test
+	public void deleteShouldBadRequestWhenDependeId() throws Exception {
+		
+		Long dependetId = 1L;
+		
+		ResultActions result =
+				mockMvc.perform(delete("/products/{productsId}", dependetId)
+						.header("Authorization", "Bearer " + adminToken)
+						.contentType(MediaType.APPLICATION_JSON));
+		
+			result.andExpect(status().isBadRequest());
+	}
+	
+	@Test
+    public void deleteShouldFailWhenUserNotAdmin() throws Exception {
+
+		ResultActions result = 
+				mockMvc.perform(delete("/products/{productId}", 1)
+                .header("Authorization", "Bearer " + clientToken)
+                .contentType(MediaType.APPLICATION_JSON));
+                
+        result.andExpect(status().isForbidden());
+    }	
+	
+	@Test
+    public void deleteShouldUnauthorizedWhenUserNotAdminOrClient() throws Exception {
+
+		ResultActions result = 
+				mockMvc.perform(delete("/products/{productId}", 1)
+                .header("Authorization", "Bearer " + invalidToken)
+                .contentType(MediaType.APPLICATION_JSON));
+                
+        result.andExpect(status().isUnauthorized());
+    }	
 }
