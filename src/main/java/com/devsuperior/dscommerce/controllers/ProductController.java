@@ -36,7 +36,7 @@ public class ProductController {
         ProductDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
-
+    
     @GetMapping
     public ResponseEntity<Page<ProductMinDTO>> findAll(
             @RequestParam(name = "name", defaultValue = "") String name,
@@ -60,7 +60,7 @@ public class ProductController {
         dto = service.update(id, dto);
         return ResponseEntity.ok(dto);
     }
-
+    
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

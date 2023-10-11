@@ -85,6 +85,8 @@
 						com/devsuperior/dscommerce/DscommerceApplication.class</exclude>
 					<exclude>com/devsuperior/dscommerce/config/**</exclude>
 					<exclude>com/devsuperior/dscommerce/entities/**</exclude>
+					<exclude>com/devsuperior/dscommerce/utils/**</exclude>
+					<exclude>com/devsuperior/dscommerce/controllers/**</exclude>
 					<exclude>com/devsuperior/dscommerce/dto/**</exclude>
 					<exclude>com/devsuperior/dscommerce/controllers/handlers/**</exclude>
 					<exclude>com/devsuperior/dscommerce/services/exceptions/**</exclude>
